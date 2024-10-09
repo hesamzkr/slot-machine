@@ -6,7 +6,7 @@
 #include <sys/select.h>
 
 #define NUM_SLOTS 3
-#define MAXIMUM_NUMBER 2
+#define NUM_SYMBOLS 3
 #define ANIMATION_DURATION 3
 
 #define RED     "\033[31m"
@@ -18,21 +18,19 @@
 #define CYAN    "\033[36m"
 #define RESET   "\033[0m"
 
-const char* getColor(int number) {
-    switch(number) {
-        case 1: return RED;
-        case 2: return GREEN;
-        case 3: return YELLOW;
-        case 4: return BLUE;
-        case 5: return MAGENTA;
-        case 6: return CYAN;
-        default: return RESET;
-    }
+const char* symbols[NUM_SYMBOLS] = {"#", "~", "+"};
+const char* colors[NUM_SYMBOLS] = {MAGENTA, ORANGE, CYAN};
+
+const char* getColor(int index) {
+    if (index >= 0 && index < NUM_SYMBOLS)
+        return colors[index];
+    else
+        return RESET;
 }
 
 void spinSlotMachine(int slots[], int num_slots) {
     for (int i = 0; i < num_slots; i++) {
-        slots[i] = rand() % MAXIMUM_NUMBER + 1;
+        slots[i] = rand() % NUM_SYMBOLS;
     }
 }
 
@@ -57,7 +55,7 @@ void animateSlots(int finalSlots[], int num_slots) {
                     slotStopped[i] = 1;
                     slotValues[i] = finalSlots[i];
                 } else {
-                    slotValues[i] = rand() % MAXIMUM_NUMBER + 1;
+                    slotValues[i] = rand() % NUM_SYMBOLS;
                 }
             }
         }
@@ -65,7 +63,7 @@ void animateSlots(int finalSlots[], int num_slots) {
         // Display the slots
         printf("\r | ");
         for (int i = 0; i < num_slots; i++) {
-            printf("%s%d%s | ", getColor(slotValues[i]), slotValues[i], RESET);
+            printf("%s%s%s | ", getColor(slotValues[i]), symbols[slotValues[i]], RESET);
         }
         fflush(stdout);
 
@@ -81,7 +79,7 @@ void animateSlots(int finalSlots[], int num_slots) {
             break;
         }
 
-        usleep(150000);
+        usleep(250000);
         elapsedTimeMs += 150;
     }
 
