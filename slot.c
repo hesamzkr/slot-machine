@@ -35,28 +35,54 @@ void spinSlotMachine(int slots[], int num_slots) {
 }
 
 void animateSlots(int finalSlots[], int num_slots) {
-    int fakeSlots[num_slots];
-    time_t startTime = time(0);
+    int slotStopped[num_slots];
+    int slotValues[num_slots];
+    int slotStopTime[num_slots];
+    int elapsedTimeMs = 0;
+
+    for (int i = 0; i < num_slots; i++) {
+        slotStopped[i] = 0;
+        slotValues[i] = 0;
+        slotStopTime[i] = (i + 1) * (ANIMATION_DURATION * 1000) / num_slots;
+    }
 
     printf("Spinning...\n\n");
 
-    while (time(0) - startTime < ANIMATION_DURATION) {
+    while (1) {
         for (int i = 0; i < num_slots; i++) {
-            fakeSlots[i] = rand() % MAXIMUM_NUMBER + 1;
+            if (!slotStopped[i]) {
+                if (elapsedTimeMs >= slotStopTime[i]) {
+                    slotStopped[i] = 1;
+                    slotValues[i] = finalSlots[i];
+                } else {
+                    slotValues[i] = rand() % MAXIMUM_NUMBER + 1;
+                }
+            }
         }
 
+        // Display the slots
         printf("\r | ");
         for (int i = 0; i < num_slots; i++) {
-            printf("%s%d%s | ", getColor(fakeSlots[i]), fakeSlots[i], RESET);
+            printf("%s%d%s | ", getColor(slotValues[i]), slotValues[i], RESET);
         }
         fflush(stdout);
+
+        // Check if all slots have stopped
+        bool allSlotsStopped = true;
+        for (int i = 0; i < num_slots; i++) {
+            if (!slotStopped[i]) {
+                allSlotsStopped = false;
+                break;
+            }
+        }
+        if (allSlotsStopped) {
+            break;
+        }
+
         usleep(150000);
+        elapsedTimeMs += 150;
     }
 
-    printf("\r | ");
-    for (int i = 0; i < num_slots; i++) {
-        printf("%s%d%s | ", getColor(finalSlots[i]), finalSlots[i], RESET);
-    }
     printf("\n");
 }
 
@@ -89,7 +115,7 @@ int main() {
 
     while (1) {
         if (firstTime) {
-            printf("Press Enter to spin the slot machine...");
+            printf("%s[ENTER]%s", YELLOW, RESET); 
             getchar();
             firstTime = false;
         }
@@ -104,7 +130,7 @@ int main() {
             animateMessage("You lost!", RED);
         }
 
-        printf("Press Enter to play again...");
+        printf("%s[ENTER]%s", YELLOW, RESET); 
         getchar();
 
         printf("\n-----------------------------------\n\n");
