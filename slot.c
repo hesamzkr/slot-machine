@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <sys/select.h>
 
@@ -68,10 +67,10 @@ void animateSlots(int finalSlots[], int num_slots) {
         fflush(stdout);
 
         
-        bool allSlotsStopped = true;
+        int allSlotsStopped = 1;
         for (int i = 0; i < num_slots; i++) {
             if (!slotStopped[i]) {
-                allSlotsStopped = false;
+                allSlotsStopped = 0;
                 break;
             }
         }
@@ -142,14 +141,14 @@ void waitForEnter() {
 
 int main() {
     int slots[NUM_SLOTS];
-    bool firstTime = true;
+    int firstTime = 1;
 
     srand(time(0));
 
     while (1) {
         if (firstTime) {
             waitForEnter();
-            firstTime = false;
+            firstTime = 0;
         }
 
         spinSlotMachine(slots, NUM_SLOTS);
