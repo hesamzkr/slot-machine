@@ -3,14 +3,16 @@
 #include <time.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <sys/select.h>
 
 #define NUM_SLOTS 3
-#define MAXIMUM_NUMBER 6
+#define MAXIMUM_NUMBER 2
 #define ANIMATION_DURATION 3
 
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
 #define YELLOW  "\033[33m"
+#define ORANGE  "\033[38;5;208m"
 #define BLUE    "\033[34m"
 #define MAGENTA "\033[35m"
 #define CYAN    "\033[36m"
@@ -107,6 +109,39 @@ int checkWin(int slots[], int num_slots) {
     return 1;
 }
 
+void waitForEnter() {
+    int colorToggle = 0;
+    const char* colors[] = {YELLOW, ORANGE};
+
+    printf("\n");
+
+    while (1) {
+        printf("\r%s[ENTER]%s", colors[colorToggle], RESET);
+        fflush(stdout);
+
+        fd_set set;
+        struct timeval tv;
+
+        FD_ZERO(&set);
+        FD_SET(STDIN_FILENO, &set);
+
+        tv.tv_sec = 0;
+        tv.tv_usec = 500000; // Wait up to 0.5 seconds
+
+        int res = select(STDIN_FILENO + 1, &set, NULL, NULL, &tv);
+        if (res > 0 && FD_ISSET(STDIN_FILENO, &set)) {
+            // Read until newline
+            int ch;
+            while ((ch = getchar()) != '\n' && ch != EOF);
+            break;
+        }
+
+        colorToggle = 1 - colorToggle;
+    }
+
+    printf("\r         \r"); // Clear the line
+}
+
 int main() {
     int slots[NUM_SLOTS];
     bool firstTime = true;
@@ -115,8 +150,7 @@ int main() {
 
     while (1) {
         if (firstTime) {
-            printf("%s[ENTER]%s", YELLOW, RESET); 
-            getchar();
+            waitForEnter();
             firstTime = false;
         }
 
@@ -130,8 +164,7 @@ int main() {
             animateMessage("You lost!", RED);
         }
 
-        printf("%s[ENTER]%s", YELLOW, RESET); 
-        getchar();
+        waitForEnter();
 
         printf("\n-----------------------------------\n\n");
     }
