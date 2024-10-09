@@ -60,14 +60,14 @@ void animateSlots(int finalSlots[], int num_slots) {
             }
         }
 
-        // Display the slots
+        
         printf("\r | ");
         for (int i = 0; i < num_slots; i++) {
             printf("%s%s%s | ", getColor(slotValues[i]), symbols[slotValues[i]], RESET);
         }
         fflush(stdout);
 
-        // Check if all slots have stopped
+        
         bool allSlotsStopped = true;
         for (int i = 0; i < num_slots; i++) {
             if (!slotStopped[i]) {
@@ -87,11 +87,12 @@ void animateSlots(int finalSlots[], int num_slots) {
 }
 
 void animateMessage(const char* message, const char* color) {
+    printf("\n");
     for (int i = 0; i < 3; i++) {
         printf("\r%s%s%s   ", color, message, RESET);
         fflush(stdout);
         usleep(500000);
-        printf("\r              ");
+        printf("\r                    ");
         fflush(stdout);
         usleep(500000);
     }
@@ -124,11 +125,10 @@ void waitForEnter() {
         FD_SET(STDIN_FILENO, &set);
 
         tv.tv_sec = 0;
-        tv.tv_usec = 500000; // Wait up to 0.5 seconds
+        tv.tv_usec = 500000;
 
         int res = select(STDIN_FILENO + 1, &set, NULL, NULL, &tv);
-        if (res > 0 && FD_ISSET(STDIN_FILENO, &set)) {
-            // Read until newline
+        if (res > 0 && FD_ISSET(STDIN_FILENO, &set)) { 
             int ch;
             while ((ch = getchar()) != '\n' && ch != EOF);
             break;
@@ -137,7 +137,7 @@ void waitForEnter() {
         colorToggle = 1 - colorToggle;
     }
 
-    printf("\r         \r"); // Clear the line
+    printf("\r         \r");
 }
 
 int main() {
@@ -157,9 +157,9 @@ int main() {
         animateSlots(slots, NUM_SLOTS);
 
         if (checkWin(slots, NUM_SLOTS)) {
-            animateMessage("You won!", GREEN);
+            animateMessage("<!-- WON --!>", GREEN);
         } else {
-            animateMessage("You lost!", RED);
+            animateMessage("<!-- LOST --!>", RED);
         }
 
         waitForEnter();
